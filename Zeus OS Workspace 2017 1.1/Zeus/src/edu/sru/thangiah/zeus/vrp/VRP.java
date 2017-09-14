@@ -76,7 +76,6 @@ public class VRP {
 				"Read Data File: " + ProblemInfo.inputPath + dataFile);
 		printDataToConsole();
 		writeDataFile(dataFile.substring(dataFile.lastIndexOf("/") + 1));
-
 		//Ensure that the shipment linked list has been loaded with the data
 		if (mainShipments.getVRPHead() == null) {
 			Settings.printDebug(Settings.ERROR,
@@ -146,7 +145,7 @@ public class VRP {
 		}
 		
 		//Write the solution out to an excel file
-		
+		mainShipments.writeVRPtoExcel();
 		/** @todo  GUI still needs to be implemented */
 		//Call to the graphical user inter face
 		//Vector emptyVector = new Vector(0);
@@ -859,7 +858,7 @@ public class VRP {
 	public void writeDataFile(String file) {
 		try {
 			PrintStream ps = new PrintStream(new FileOutputStream(ProblemInfo.
-					outputPath +file +"_students.txt"));
+					outputPath +file +"_students1.txt"));
 			mainShipments.writeVRPShipments(ps);
 		}
 		catch (IOException ioex) {
@@ -972,7 +971,7 @@ public class VRP {
 	      //save the file
 	      try 
 	      {
-	    	  FileOutputStream fout = new FileOutputStream(new File(ProblemInfo.outputPath + "Comparison.xlsx"));
+	    	  FileOutputStream fout = new FileOutputStream(new File(ProblemInfo.outputPath + "Comparison1.xlsx"));
 	    	  workbook.write(fout); 
 	          fout.close();
 	      } 

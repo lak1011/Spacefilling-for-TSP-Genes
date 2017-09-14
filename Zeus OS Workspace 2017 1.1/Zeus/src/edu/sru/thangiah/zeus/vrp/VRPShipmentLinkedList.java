@@ -1,6 +1,12 @@
 package edu.sru.thangiah.zeus.vrp;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
@@ -176,6 +182,38 @@ public class VRPShipmentLinkedList
 				  vrpShip.getExtraVariable());
 		  ship = ship.getNext();
 	  }
+  }
+  public void writeVRPtoExcel(){
+	  int rowCounter = 0;
+	  int curCol = 0;
+	  Shipment ship = super.getHead();
+	  VRPShipment vrpShip;
+	  XSSFWorkbook workbook = new XSSFWorkbook(); // create a book
+	  XSSFSheet sheet = workbook.createSheet("Sheet1");// create a sheet
+	  XSSFRow curRow = sheet.createRow(rowCounter++);
+	  while (ship != getTail())
+	  {
+		  curCol = 0;
+		  vrpShip=(VRPShipment)ship;
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getIndex());
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getTruckTypeNeeded());
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getDemand());
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getXCoord());
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getYCoord());
+		  curRow.createCell(curCol++).setCellValue(vrpShip.getExtraVariable());
+		  ship = ship.getNext();
+		  curRow=sheet.createRow(rowCounter++);
+	  }
+      try 
+      {
+    	  FileOutputStream fout = new FileOutputStream(new File(ProblemInfo.outputPath + "_ExcelFileOutTest.xlsx"));
+    	  workbook.write(fout); 
+          fout.close();
+      } 
+      catch (Exception e) 
+      { 
+          e.printStackTrace(); 
+      } 
   }
 }
 
