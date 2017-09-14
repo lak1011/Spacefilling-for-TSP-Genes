@@ -1,5 +1,7 @@
 package edu.sru.thangiah.zeus.vrp;
 
+import java.io.File;
+
 import edu.sru.thangiah.zeus.core.ProblemInfo;
 import edu.sru.thangiah.zeus.vrp.vrpcostfunctions.*;
 
@@ -21,9 +23,9 @@ public class VRPRoot {
     //Paths for temporary, input and output files
     //ProblemInfo.currDir gives the working directory of the program
     ProblemInfo.tempFileLocation = ProblemInfo.workingDirectory+"\\temp";
-    ProblemInfo.inputPath = ProblemInfo.workingDirectory+"\\data\\vrp\\problems\\";
+    ProblemInfo.inputPath = ProblemInfo.workingDirectory+"\\data\\tsp\\problems\\";
 
-    ProblemInfo.outputPath = ProblemInfo.workingDirectory+"\\data\\vrp\\results\\";
+    ProblemInfo.outputPath = ProblemInfo.workingDirectory+"\\data\\tsp\\results\\";
 
     /* String path = "";
            String newpath = "SBVRP/new";
@@ -59,7 +61,20 @@ public class VRPRoot {
      */
     //new vrp.MDVRP("mdvrp_p01.txt");
     //new VRP("mdvrp_p01.txt"); //Reading from a text file
-    new VRP("mdvrp_p01.xlsx");
+    // The section below creates a VRP for all items in the given input folder
+
+    // Creates a list of all of the input files in the input folder
+    File inPath = new File(ProblemInfo.inputPath);
+    File[] allInFiles = inPath.listFiles();
+    // Creates a new VRP for each file in the list
+    int i; // Initialize integer i
+    int numFiles = allInFiles.length; // Get the number of files
+    for (i = 0; i < numFiles; i++)
+    {
+    	if (allInFiles[i].getName().matches("^.*\\.xlsx$"))
+    		new VRP(allInFiles[i].getName());
+    }
+    
     //new edu.sru.thangiah.zeus.vrp.VRP("mdvrp_p01.txt");
   }
 }
