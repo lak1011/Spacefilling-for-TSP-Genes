@@ -109,6 +109,7 @@ public class VRP {
 				"Initial Stats: " + mainDepots.getSolutionString());
 		//At this point all shipments have been assigned
 		writeLongSolution(dataFile.substring(dataFile.lastIndexOf("/") + 1));
+		writeLongToExcel(dataFile.substring(dataFile.lastIndexOf("/") + 1));
 		//writeShortSolution(dataFile.substring(dataFile.lastIndexOf("/") + 1));
 
 		//create a vector of search strategy/optimizations to execute
@@ -880,7 +881,42 @@ public class VRP {
 			ioex.printStackTrace();
 		}
 	}
+	public void writeLongToExcel(String file) {
+		
+		  int rowCounter = 0;
+		  int curCol = 0;
+		  Depot depot = mainDepots.getHead();
+		  VRPDepot vrpDepot;
+		  XSSFWorkbook workbook = new XSSFWorkbook(); // create a book
+		  XSSFSheet sheet = workbook.createSheet("Sheet1");// create a sheet
+		  XSSFRow curRow = sheet.createRow(rowCounter++);
 
+			  while (depot != mainDepots.getTail())
+			  {
+				  curCol = 0;
+				  vrpDepot=(VRPDepot)depot;
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getDepotNum());
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getStartX());
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getStartY());
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getXCoord());
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getYCoord());
+				  curRow.createCell(curCol++).setCellValue(vrpDepot.getStartLoc());
+				  depot = depot.getNext();
+				  curRow=sheet.createRow(rowCounter++);
+			  }
+		      try 
+		      {
+		    	  FileOutputStream fout = new FileOutputStream(new File(ProblemInfo.outputPath + "test depot.xlsx"));
+		    	  workbook.write(fout); 
+		          fout.close();
+		      } 
+		      catch (Exception e) 
+		      { 
+		          e.printStackTrace(); 
+		      } 
+
+
+	}
 	/**
 	 * Will write a short solution for the problem
 	 * @param file name of the file to write to
