@@ -1,5 +1,11 @@
 package edu.sru.thangiah.zeus.tsp;
 
+import java.io.FileInputStream;
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import edu.sru.thangiah.zeus.core.ProblemInfo;
 import edu.sru.thangiah.zeus.tsp.tspcostfunctions.*;
 
@@ -9,57 +15,43 @@ public class TSPRoot {
    */
   public TSPRoot() {
 
-    //Settings for the ProblemInfo class
-    //Problem info consists of a set of static values that are used by a number
-    //of different classes. The following has to be set in order for the program
-    //to function correctly.
     ProblemInfo.nodesLLLevelCostF = new TSPNodesLLCostFunctions();
     ProblemInfo.truckLevelCostF = new TSPTruckCostFunctions();
     ProblemInfo.truckLLLevelCostF = new TSPTruckLLCostFunctions();
     ProblemInfo.depotLevelCostF = new TSPDepotCostFunctions();
     ProblemInfo.depotLLLevelCostF = new TSPDepotLLCostFunctions();
-    //Paths for temporary, input and output files
-    //ProblemInfo.currDir gives the working directory of the program
     ProblemInfo.tempFileLocation = ProblemInfo.workingDirectory+"/temp";
     ProblemInfo.inputPath = ProblemInfo.workingDirectory+"/data/tsp/problems/";
 
     ProblemInfo.outputPath = ProblemInfo.workingDirectory+"/data/tsp/results/";
 
-    /* String path = "";
-           String newpath = "SBTSP/new";
-           String oldpath = "SBTSP/old";
-           Settings.debugLevel = Settings.WARNING; //only show error messages
-
-           ProblemInfo.inputPath  = path + "data/" + newpath + "/";
-           ProblemInfo.outputPath = path + "results/" + newpath + "/";
-
-           ProblemInfo.inputPath  = path + "data/" + oldpath + "/";
-           ProblemInfo.outputPath = path + "results/" + oldpath + "/";
-     */
+    
+	//Open the requested file
+    String filename = "";
+    String master = "master.xlsx";
+	XSSFWorkbook workbook = new XSSFWorkbook();    
+	FileInputStream fis;
+	XSSFSheet sheet;
+	XSSFRow curRow;
+	int rowCounter = 0; 
 
 
-    /* All problems are labeled as p01, p02,...,p10, p11.
-       This code generates the file names automatically and passes it to
-      algorithm to be solved.
-     */
-    /* for(int i=1; i<=2; i++){
-        String s = "p";
-        //all files that have single digits are named p01, p02 ..
-        if(i<10){
-          s += "0" + i;
-        }
-        //for files that have double digits such as p10,p11
-        else{
-          s += "" + i;
-        }
-
-        System.out.println("Executing old " + s);
-        new TSP(path + "data/" + oldpath + "/" + s);
-      }
-     */
-    //new tsp.MDTSP("mdtsp_p01.txt");
-    //new TSP("mdtsp_p01.txt"); //Reading from a text file
-    new TSP("a280.xlsx");
-    //new edu.sru.thangiah.zeus.tsp.TSP("mdtsp_p01.txt");
+	try { 
+		fis = new FileInputStream(ProblemInfo.inputPath+master);
+		workbook = new XSSFWorkbook(fis);
+		sheet = workbook.getSheetAt(0);
+		curRow = sheet.getRow(rowCounter); 
+		String cell = (String)curRow.getCell(0).getStringCellValue();
+		
+		while (cell != "EOF") {
+			rowCounter++;
+			curRow = sheet.getRow(rowCounter); // the 2nd row is the problem data
+			filename = (String)curRow.getCell(0).getStringCellValue();
+		    new TSP(filename+".xlsx");
+		}
+	}
+	catch (Exception e) {
+		System.out.println("readDataFromExcelFile 'master.xlsx' file is not present");
+	}
   }
 }
