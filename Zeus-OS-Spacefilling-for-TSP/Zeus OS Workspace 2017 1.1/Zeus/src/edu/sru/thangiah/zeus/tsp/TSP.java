@@ -9,28 +9,10 @@ import edu.sru.thangiah.zeus.tsp.tspqualityassurance.*;
 import edu.sru.thangiah.zeus.gui.*;
 import edu.sru.thangiah.zeus.localopts.OptInfo;
 import edu.sru.thangiah.zeus.localopts.*;
-
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-
-
-//import edu.sru.thangiah.zeus.metaheuristics.simulatedannealing.*;
-//import edu.sru.thangiah.zeus.metaheuristics.tabu.*;
-//import edu.sru.thangiah.zeus.qualityassurance.*;
-//import edu.sru.thangiah.zeus.localopts.mixedfleet.*;
-
-/**
- *
- * <p>Title:</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2005</p>
- * <p>Company: </p>
- * @author Sam R. Thangiah
- * @version 2.0
- * Changes: 9/6/2017 - Addition of readDataFromExcelFile() method
- */
 
 public class TSP {
 
@@ -84,12 +66,10 @@ public class TSP {
 		}
 
 		//Set up the shipment selection type
-		//ProblemInfo.selectShipType = new ClosestEuclideanDistToDepot();
-		//Settings.printDebug(Settings.COMMENT,ClosestEuclideanDistToDepot.WhoAmI());
+
 		ProblemInfo.selectShipType = new SmallestPolarAngleToDepot();
 		Settings.printDebug(Settings.COMMENT, SmallestPolarAngleToDepot.WhoAmI());
-		//ProblemInfo.selectShipType = new SmallestPolarAngleShortestDistToDepot();
-		//Settings.printDebug(Settings.COMMENT,SmallestPolarAngleShortestDistToDepot.WhoAmI());
+
 
 		//set up the shipment insertion type
 		ProblemInfo.insertShipType = new LinearGreedyInsertShipment();
@@ -115,21 +95,8 @@ public class TSP {
 		//create a vector of search strategy/optimizations to execute
 		mainOpts = new Vector(1); //vector capacity of 1
 		//sets the upperbound in LocalOneOpt and
-		//sets the name of the search to Best
-		//mainOpts.add(new FirstFirstIntraSearch(new ThreeOpt()));
-		//mainOpts.add(new FirstFirstIntraSearch(new OneOpt()));
-		//mainOpts.add(new FirstBestIntraSearch(new OneOpt()));
-		//mainOpts.add(new BestBestIntraSearch(new OneOpt()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange01()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange10()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange11()));
-		//mainOpts.add(new FirstBestInterSearch(new Exchange01()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange22()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange11()));
-		//mainOpts.add(new FirstFirstInterSearch(new Exchange11()));
-		//mainOpts.add(new FirstBestInterSearch(new Exchange11()));
-		//mainOpts.add(new BestBestInterSearch(new Exchange11()));
-		//mainOpts.add(new Combination1(ProblemInfo.truckTypes));
+
+		
 		runOptimizations();
 		writeLongSolution(dataFile.substring(dataFile.lastIndexOf("/") + 2));
 
@@ -145,13 +112,6 @@ public class TSP {
 
 		}
 		
-		//Write the solution out to an excel file
-		
-		/** @todo  GUI still needs to be implemented */
-		//Call to the graphical user inter face
-		//Vector emptyVector = new Vector(0);
-		//TSPZeusGui gui = new TSPZeusGui(mainDepots, mainShipments, emptyVector);
-
 		ZeusGui guiPost = new ZeusGui(mainDepots, mainShipments);
 
 	} 
@@ -224,9 +184,6 @@ public class TSP {
 				//tag the shipment as being routed
 				theShipment.setIsAssigned(true);
 			}
-			//System.out.println("Loop is "+countLoop++);
-			//get the next shipment
-			//theShipment = (TSPShipment) theShipment.getNext();? - Not needed
 		}
 
 		ProblemInfo.depotLLLevelCostF.calculateTotalsStats(mainDepots);
@@ -234,345 +191,13 @@ public class TSP {
 		return info;
 	}
 
-	//read in the data from the requested file in token format from a text file
-	public int readDataFromTextFile(String TSPFileName) {
-		// read in the MDTSP data from the listed file and load the information
-		// into the availShipments linked list
-
-		//type = 0 (MDTSP)
-		//     = 1 (PTSP)
-		//     = 2 (PTSP)
-		char ch;
-		String temp = "";
-		int index = 0,
-				j = 0,
-				type = 0; //type
-		//m        = 0,                           //number of vehicles
-		//n        = 0,                           //number of customers
-		//t        = 0,                           //number of days(or depots)
-		//D        = 0,                           //maximum duration of route
-		//Q        = 0;                           //maximum load of vehicle
-		int p = 3; //Np neighborhood size
-
-		int depotIndex;
-
-		//Open the requested file
-		FileInputStream fis;
-		InputStreamReader isr;
-		BufferedReader br;
-		try {
-			fis = new FileInputStream(TSPFileName);
-			isr = new InputStreamReader(fis);
-			br = new BufferedReader(isr);
-		}
-		catch (Exception e) {
-			System.out.println("File is not present");
-			return 0;
-		}
-
-		//InitData             currentProb = new InitData();    //Class for initializing data
-
-		//This section will get the initial information from the data file
-		//Read in the first line from the file
-		String readLn;
-		StringTokenizer st;
-
-		//This reads in the first line that is used to determine the total
-		//numer of customers and type of problem
-		//typePtsp is + type);
-		//numVeh is         + m; //not really used in an MDTSP
-		//numCust is        + n;
-		//Days is            + t; //Depots in the case of MDTSP
-		//Depot duration is + D;
-		//capacity is       + Q;
-
-		//read in the first line
-		try {
-			readLn = br.readLine();
-			//print out the line that was read
-			//System.out.println("This is s:" + s);
-
-			st = new StringTokenizer(readLn);
-			while (st.hasMoreTokens()) { //while there are more tokens
-				//int shValue =  Integer.parseInt(st.nextToken());
-				switch (index) {
-				case 0:
-					type = Integer.parseInt(st.nextToken());
-					break;
-				case 1:
-					m = Integer.parseInt(st.nextToken());
-					break;
-				case 2:
-					n = Integer.parseInt(st.nextToken());
-					break;
-				case 3:
-					t = Integer.parseInt(st.nextToken());
-					break;
-				case 4:
-					D = Integer.parseInt(st.nextToken());
-					break;
-				case 5:
-					Q = Integer.parseInt(st.nextToken());
-					break;
-				} //end switch
-				index += 1;
-			} //end while
-		}
-		catch (Exception e) {
-			System.out.println("Line could not be read in");
-		}
-
-		//Put the problem information into the ProblemInfo class
-		//set the problem info for the problem
-		ProblemInfo.numDepots = 1; //Set the number of depots to 1 for this problem
-		ProblemInfo.fileName = TSPFileName; //name of the file being read in
-		ProblemInfo.probType = type; //problem type
-		ProblemInfo.noOfVehs = m; //number of vehicles
-		ProblemInfo.noOfShips = n; //number of shipments
-		ProblemInfo.noOfDays = t; //number of days (horizon) or number of depots for MDTSP
-		if (Q == 0) { //if there is no maximum capacity, set it to a very large number
-			Q = 999999999;
-		}
-		if (D == 0) { //if there is no travel time, set it to a very large number
-			D = 999999999; //if there is not maximum distance, set it to a very large number
-			//ProblemInfo.maxCapacity = Q;  //maximum capacity of a vehicle
-			//ProblemInfo.maxDistance = D;  //maximum distance of a vehicle
-		}
-		/** @todo  There three variables need to be defined at the beginning of
-		 * the method */
-		float maxCapacity = Q; //maximum capacity of a vehicle
-		float maxDistance = D; //maximum distance of a vehicle
-
-		String serviceType = "1"; //serviceType is the trucktype. Should match with
-		//required truck type
-		//In some problems, different truck types might be present to solve
-		//the problem. For this problem, we assume that there is only one
-		//truck type that is available.
-		//loop through each truck type and store each one in the vector
-		int numTruckTypes = 1;
-		for (int i = 0; i < numTruckTypes; i++) {
-			TSPTruckType truckType = new TSPTruckType(i, maxDistance,
-					maxCapacity, serviceType);
-			ProblemInfo.truckTypes.add(truckType);
-		}
-
-		//Some problems tend to have different customer types. In this problem
-		//there is only one customter type. The integer value for the customer type
-		//should match with the integer value for the truck type for the compatibiliy
-		//check to work
-		//read in the different customer types
-		Vector custTypes = new Vector();
-		//Obtain the different customer types
-		for (int ct = 0; ct < 1; ct++) {
-			custTypes.add(new Integer(1));
-		}
-
-		//place the number of depots and number of shipments in the linked list instance
-		//These no longer seem to be needed for the shipment linked list. The total number of
-		//shipments are tallied when they are inserted into the linked list
-		//mainShipments.numShipments = n;
-		//mainShipments.noDepots = t;
-		//mainShipments.maxCapacity = Q;
-		//mainShipments.maxDuration = D ;
-
-		//display the information from the first line
-		//System.out.println("typePtsp is       " + type);
-		//System.out.println("numVeh is         " + m);
-		//System.out.println("numCust is        " + n);
-		//System.out.println("days is           " + t);
-		//System.out.println("Depot duration is " + D);
-		//System.out.println("capacity is       " + Q);
-
-		if (type != 0) { //then it is not an MDTSP problem
-			System.out.println("Problem is not an MDTSP problem");
-			return 0;
-		}
-
-		//This section will get the depot x and y for the PTSP and the PTSP.
-		float x = 0, //x coordinate
-				y = 0; //y coordinate
-		int i = 0, //customer number
-				d = 0, //service duration
-				q = 0, //demand
-				f = 0, //frequency of visit
-				a = 0, //number of combinations allowed
-				vIndex = 1,
-				custCnt = 0;
-		int runTimes;
-
-		//Use 1 less the maximum as the 0 index is not used
-		//declare the total number of combinations
-		int list[] = new int[ProblemInfo.MAX_COMBINATIONS];
-		//array of 0'1 and 1's for the combinations
-		int currentComb[][] = new int[ProblemInfo.MAX_HORIZON][ProblemInfo.
-		                                                       MAX_COMBINATIONS];
-		//if MDTSP problem, readn in n+t lines
-		if (type == 0) {
-			runTimes = n + t;
-
-		}
-		//if  PTSP/PTSP, read in n+1 lines
-		else {
-			runTimes = n + 1;
-			//This section will get the customers/depots and related information
-		}
-
-		try {
-			readLn = br.readLine();
-			//print out the line that was read in
-			//System.out.println("This is s:" + s);
-
-			//The first for loop runtimes dependent upon how many lines are to be read
-			//in
-			//The next for loop reads the line into s.  Then the entire string in s
-			//is processed until the the entire line is processed and there are no
-			//more characters are to be processed. There is a case for each index
-			//except for the combinations.  The combinations are processed
-			//until the last character in s is processed
-
-			for (int k = 0; k < runTimes; k++) {
-				index = 0;
-				temp = "";
-				vIndex = 0;
-				custCnt++;
-				st = new StringTokenizer(readLn);
-				if (k < n) { //it is a shipment
-					while (st.hasMoreElements()) {
-						switch (index) {
-						case 0:
-							i = Integer.parseInt(st.nextToken());
-							//System.out.println("custNum is " + custNum);
-							break;
-						case 1: //x = Double.parseDouble(temp);
-							x = Integer.parseInt(st.nextToken());
-							//System.out.println("x is " + vertexX);
-							break;
-						case 2:
-							y = Integer.parseInt(st.nextToken());
-							//y = Double.parseDouble(temp);
-							//System.out.println("y is " + vertexY);
-							break;
-						case 3:
-							d = Integer.parseInt(st.nextToken());
-							//System.out.println("duration is " + duration);
-							break;
-						case 4:
-							q = Integer.parseInt(st.nextToken());
-							//System.out.println("demand is " + demand);
-							break;
-						case 5:
-							f = Integer.parseInt(st.nextToken());
-							//System.out.println("frequency is " + frequency);
-							break;
-						case 6:
-							a = Integer.parseInt(st.nextToken());
-							//System.out.println("number of comb is " + numComb);
-							break;
-						default:
-							list[vIndex] = Integer.parseInt(st.nextToken());
-							//System.out.println("visitComb[" + vIndex +"] is " + visitComb[vIndex]);
-							vIndex++;
-							break;
-						} //end switch
-						index += 1;
-					} //end while
-					//Each combination gets its own set of 0 and 1 combinations
-					//a = number of Combinations, list = [] of comb as ints,
-					//l=index of combination to be decoded,
-					//t = days in planning horizon or #depots
-					for (int l = 0; l < a; l++) {
-						currentComb[l] = mainShipments.getCurrentComb(list, l, t); // current visit comb
-
-						//insert the customer data into the linked list
-					}
-					Integer custType = (Integer) custTypes.elementAt(0);
-					mainShipments.insertShipment(i, x, y, q, d, f, a, custType.toString(),
-							list, currentComb);
-
-					//  type = (Integer) custTypes.elementAt(0);
-					//       shipment = new Shipment(mainShipments.getNumShipments() +
-					//                               1, x, y, 1, d, type.toString(), "" + i);
-
-				}
-				else { //it is a depot - add it to the depot linked list
-					while (st.hasMoreElements() && index < 3) { //No more than three values are there for depot information
-						switch (index) {
-						case 0:
-							i = Integer.parseInt(st.nextToken());
-							//System.out.println("custNum is " + custNum);
-							break;
-						case 1: //x = Double.parseDouble(temp);
-							x = Integer.parseInt(st.nextToken());
-							//System.out.println("x is " + vertexX);
-							break;
-						case 2:
-							y = Integer.parseInt(st.nextToken());
-							//y = Double.parseDouble(temp);
-							//System.out.println("y is " + vertexY);
-							break;
-						default:
-							System.out.println("Default in reading the file was initiated");
-							vIndex++;
-						} //end switch
-						index += 1;
-					} //while
-
-					//insert the depot into the depot linked list
-					//insert only one depot for the TSP
-					if (mainDepots.getHead().getNext() == mainDepots.getTail() && mainDepots.getNoDepots() <= 1)
-					{
-						TSPDepot depot = new TSPDepot(i - n, x, y); //n is the number of customers
-						mainDepots.insertDepotLast(depot);
-
-						//Each depot has a mainTrucks. The different truck types available are
-						//inserted into the mainTrucks type. For the TSP, there is only one truck type
-						depot = (TSPDepot) mainDepots.getHead().getNext();
-						for (i = 0; i < ProblemInfo.truckTypes.size(); i++) {
-							TSPTruckType ttype = (TSPTruckType) ProblemInfo.truckTypes.
-									elementAt(i);
-							depot.getMainTrucks().insertTruckLast(new TSPTruck(ttype,depot.getXCoord(), depot.getYCoord()));
-						}
-					}
-				} //else
-				//read the next line from the file
-				try {
-					readLn = br.readLine();
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-					System.out.println("Reading in the next line");
-				} //try
-				//System.out.println("This is s:" + s);
-			} //end for
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Reading the line");
-		}
-
-		//print out the shipment numbers on command line
-		//  mainShipments.printShipNos();
-		//call method to send the data to file
-		try {
-			//availShipments.outputMDTSPShipData(type, t, MDTSPFileName, "outCust.txt");   //problem type, #days or depots
-			//outputMDTSPShipData(type, t, MDTSPFileName, "outCust.txt");   //problem type, #days or depots
-		}
-		catch (Exception e) {
-			System.out.println("Shipment information could not be sent to the file");
-		}
-		return 1;
-	}
+	
 	
 	/* 
 	 * Method used to read data from the specified Excel file 
 	 */
 	public int readDataFromExcelFile(String TSPFileName) {
-		// read in the MDTSP data from the listed file and load the information
-		// into the availShipments linked list
-
-		//type = 0 (MDTSP)
-		//     = 1 (PTSP)
-		//     = 2 (PTSP)
+		
 		char ch;
 		String temp = "";
 		int index = 0,
@@ -594,60 +219,27 @@ public class TSP {
 		XSSFRow curRow;
 		int rowCounter = 0; //initial the row counter
 
-		//    FileInputStream fis;
-		//    InputStreamReader isr;
-		//    BufferedReader br;
 		try {
 			fis = new FileInputStream(TSPFileName);
 			workbook = new XSSFWorkbook(fis);
 			sheet = workbook.getSheetAt(0);
 			curRow = sheet.getRow(rowCounter+1); // the 2nd row is the problem data
 
-			//      fis = new FileInputStream(TSPFileName);
-			//      isr = new InputStreamReader(fis);
-			//      br = new BufferedReader(isr);
 		}
 		catch (Exception e) {
 			System.out.println("readDataFromExcelFile - "+TSPFileName+" File is not present");
 			return 0;
 		}
 
-		//InitData             currentProb = new InitData();    //Class for initializing data
-
-		//This section will get the initial information from the data file
-		//Read in the first line from the file
-		//String readLn;
-		//StringTokenizer st;
-
-		//This reads in the first line that is used to determine the total
-		//numer of customers and type of problem
-		//typePtsp is + type);
-		//numVeh is         + m; //not really used in an MDTSP
-		//numCust is        + n;
-		//Days is           + t; //Depots in the case of MDTSP
-		//Depot duration is + D;
-		//capacity is       + Q;
-
 		//read in the first line
-		/*
 		try {
-			type = (int)curRow.getCell(0).getNumericCellValue();
-			m = (int)curRow.getCell(1).getNumericCellValue();
-			n = (int)curRow.getCell(2).getNumericCellValue();
-			t = (int)curRow.getCell(3).getNumericCellValue();
-			D = (int)curRow.getCell(4).getNumericCellValue();
-			Q = (int)curRow.getCell(5).getNumericCellValue();
-		}
-		*/
-		
-		//Formatted for TSP
-		try {
-			type = (int)curRow.getCell(0).getNumericCellValue();
-			m = 1; //Number of vehicles - default of 1 for TSP
-			n = (int)curRow.getCell(2).getNumericCellValue(); //Number of stops
-			t = 1; //Number of depots - only one for TSP
-			//D = 9999999; //Max duration of route
-			//Q = 9999999; //Max load of vehicle
+			type = 0;
+			m = 1;   // Number of vehicles
+			curRow = sheet.getRow(3); //Current row set to 3 - Dimension
+			n = (int)curRow.getCell(1).getNumericCellValue(); //Dimension size
+			t = 1; //Number of depots
+			//D = 9999999; //Max duration
+			//Q = 9999999; //Max load
 		}
 		catch (Exception e) {
 			System.out.println("Line could not be read in");
@@ -699,21 +291,12 @@ public class TSP {
 			custTypes.add(new Integer(1));
 		}
 
-		//place the number of depots and number of shipments in the linked list instance
-		//These no longer seem to be needed for the shipment linked list. The total number of
-		//shipments are tallied when they are inserted into the linked list
-		//mainShipments.numShipments = n;
-		//mainShipments.noDepots = t;
-		//mainShipments.maxCapacity = Q;
-		//mainShipments.maxDuration = D ;
 
 		//display the information from the first line
-		//System.out.println("typePtsp is       " + type);
-		//System.out.println("numVeh is         " + m);
-		//System.out.println("numCust is        " + n);
-		//System.out.println("days is           " + t);
-		//System.out.println("Depot duration is " + D);
-		//System.out.println("capacity is       " + Q);
+		System.out.println("type is       " + type);
+		System.out.println("numVeh is         " + m);
+		System.out.println("numCust is        " + n);
+
 
 		if (type != 0) { //then it is not an MDTSP problem
 			System.out.println("Problem is not an MDTSP problem");
@@ -730,12 +313,6 @@ public class TSP {
 				a = 0; //number of combinations allowed
 		int runTimes;
 
-		//Use 1 less the maximum as the 0 index is not used
-		//declare the total number of combinations
-		//int list[] = new int[ProblemInfo.MAX_COMBINATIONS];
-		//array of 0'1 and 1's for the combinations
-		//int currentComb[][] = new int[ProblemInfo.MAX_HORIZON][ProblemInfo.MAX_COMBINATIONS];
-		//TODO Max_horizon = 7 it's too small
 
 		//if MDTSP problem, readn in n+t lines
 		if (type == 0) {
@@ -756,7 +333,7 @@ public class TSP {
 			//except for the combinations.  The combinations are processed
 			//until the last character in s is processed
 
-			rowCounter = 3; //set the rowCounter, customer data begin from the 4th row
+			rowCounter = 6; //set the rowCounter, customer data begin from the 4th row
 
 			for (int k = 0; k < runTimes; k++) {
 				index = 0;
@@ -766,41 +343,23 @@ public class TSP {
 					i = (int)curRow.getCell(0).getNumericCellValue();
 					x = (int)curRow.getCell(1).getNumericCellValue();
 					y = (int)curRow.getCell(2).getNumericCellValue();
-					d = (int)curRow.getCell(3).getNumericCellValue();
-					q = (int)curRow.getCell(4).getNumericCellValue();
-					f = (int)curRow.getCell(5).getNumericCellValue();
-					//							a = (int)curRow.getCell(6).getNumericCellValue();
-					//							for(int indexComb=0; indexComb<a; indexComb++){
-					//								list[indexComb] = (int)curRow.getCell(indexComb+7).getNumericCellValue();
-					//							}
+					d = 0;
+					q = 0;
+					f = 0;
 				}
 				catch (Exception e) {
 					System.out.println("Line could not be read in line 474");
 				}
-				//Each combination gets its own set of 0 and 1 combinations
-				//a = number of Combinations, list = [] of comb as ints,
-				//l=index of combination to be decoded,
-				//t = days in planning horizon or #depots
-				//						for (int l = 0; l < a; l++) {
-				//							currentComb[l] = mainShipments.getCurrentComb(list, l, t); // current visit comb
-				//
-				//							//insert the customer data into the linked list
-				//						}
+
 				Integer custType = (Integer) custTypes.elementAt(0);
 				mainShipments.insertShipment(i, x, y, q, d, f, custType.toString());
-				
-				//mainShipments.insertShipment(i, x, y, q, d, f, a, custType.toString(),
-				//		list, currentComb);
-
-				//						mainShipments.insertShipment(i, x, y, q, d, f, a, custType.toString(),
-				//								list, currentComb);
-
-				//  type = (Integer) custTypes.elementAt(0);
-				//       shipment = new Shipment(mainShipments.getNumShipments() +
-				//                               1, x, y, 1, d, type.toString(), "" + i);
+		
 				rowCounter++; //go to next row          
 			}// end for
 
+			
+			
+			
 			rowCounter = 3+n+1; //set the rowCounter, depot data begin from the (3+n+1)th row
 			for (int k = 0; k < t; k++) { //add it to the depot linked list
 				curRow = sheet.getRow(rowCounter);
@@ -836,9 +395,6 @@ public class TSP {
 			System.out.println("Reading the line");
 		}
 
-		//print out the shipment numbers on command line
-		//  mainShipments.printShipNos();
-		//call method to send the data to file
 		try {
 			//availShipments.outputMDTSPShipData(type, t, MDTSPFileName, "outCust.txt");   //problem type, #days or depots
 			//outputMDTSPShipData(type, t, MDTSPFileName, "outCust.txt");   //problem type, #days or depots
@@ -850,9 +406,9 @@ public class TSP {
 	}
 
 
-	/**
-	 * Print  out the data to the console
-	 */
+	
+
+	
 
 	public void printDataToConsole() {
 		try {
@@ -1019,9 +575,6 @@ public class TSP {
 					opt.toString() + " Stats: " +
 							mainDepots.getSolutionString());
 		}
-		//Calculate the total stats
-		//ProblemInfo.depotLLLevelCostF.calculateTotalsStats(mainDepots);
-		//info.setNewAtributes(mainDepots.getAttributes());
 	}
 
 } //End of TSP file
