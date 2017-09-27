@@ -1,0 +1,16 @@
+Instructions for running Zeus TSP:
+
+1. Open Eclipse Oxygen
+2. Click File > Import
+3. Click drop down arrow next to ‘Git’
+4. Click ‘Projects from Git’ > Click Next
+5. Click ‘Clone URI’ > Click Next
+6. Copy and paste Github URI, found under the ‘Clone or download’ button on project home page in Github
+7. Click Next
+8. Make sure the master branch is selected
+9. Click Next > Next
+10. Use drop down arrows and select ‘Zeus OS Workspace 2017 1.1’ as the workspace
+11. Click Next
+12. Click Finish
+13. Update build path to include local libraries, if they do not automatically update
+14. Run Zeus.java file as a Java Application
